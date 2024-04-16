@@ -1,0 +1,4 @@
+/** ラジオボタングループ(v-radio-group)を使用すると flex:1 1 auto;(auto) となっており右側に余白がとられてしまうため無効化(none)  */
+.v-radio-group {
+  flex: none !important;
+}
