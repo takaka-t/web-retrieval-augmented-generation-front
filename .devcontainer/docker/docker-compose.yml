@@ -5,9 +5,13 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../../:/workspace:cached
+      - web-retrieval-augmented-generation_front_node_modules:/workspace/node_modules
     tty: true
     networks:
       - web-retrieval-augmented-generation-network
+
+volumes:
+  web-retrieval-augmented-generation_front_node_modules:
 networks:
   web-retrieval-augmented-generation-network:
     external: true
