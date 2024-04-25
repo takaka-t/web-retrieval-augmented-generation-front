@@ -34,8 +34,11 @@ export const useGlobalStore = defineStore(
 
     /**
      * ログアウト処理
+     * ※未ログイン時は何もしない
      */
     const logout = async (): Promise<void> => {
+      // 未ログイン時は処理を抜ける
+      if (isLogin.value === false) return;
       // ログアウト
       loginUserId.value = null;
       loginUserName.value = null;

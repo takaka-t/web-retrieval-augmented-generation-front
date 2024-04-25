@@ -40,11 +40,6 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const globalStore = useGlobalStore();
 
-  // Login画面に遷移予定の場合はログアウトする
-  if (to.path.includes(RouteConsts.login.path)) {
-    globalStore.logout();
-  }
-
   // 未ログインガード
   if (to.path.includes(RouteConsts.login.path) === false && globalStore.isLogin === false) {
     // Login画面に遷移予定でなく、未ログインの場合にLogin画面に遷移

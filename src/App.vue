@@ -72,8 +72,7 @@ onMounted(async () => {});
       <v-label style="margin-left: auto"><strong>Web RAG</strong></v-label>
     </v-footer>
 
-    <!-- ログイン後 -->
-    <div v-if="globalStore.isLogin">
+    <!-- ナビゲーションバー -->
       <v-navigation-drawer v-model="drawer" color="secondary">
         <v-list>
           <v-list-item v-for="(item, key) in navigationItems" :key="key" :to="{ path: item.route.path }" @click="clickNavigationItem(item.route.title)">
@@ -84,6 +83,7 @@ onMounted(async () => {});
         </v-list>
       </v-navigation-drawer>
 
+    <!-- メイン -->
       <v-main>
         <v-container>
           <v-label style="font-size: x-large">{{ globalStore.currentPageTitle }}</v-label>
@@ -92,13 +92,5 @@ onMounted(async () => {});
           </v-container>
         </v-container>
       </v-main>
-    </div>
-
-    <!-- ログイン前 -->
-    <div v-else>
-      <v-main>
-        <RouterView />
-      </v-main>
-    </div>
   </v-app>
 </template>

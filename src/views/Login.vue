@@ -58,9 +58,17 @@ const inputFormOnSubmit = async (): Promise<void> => {
   }
 };
 
-onMounted(() => {
-  // ローディング解除
-  globalStore.isLoading = false;
+onMounted(async (): Promise<void> => {
+  try {
+    // ローディング開始
+    globalStore.isLoading = true;
+
+    // ログアウト
+    await globalStore.logout();
+  } finally {
+    // ローディング解除
+    globalStore.isLoading = false;
+  }
 });
 </script>
 
