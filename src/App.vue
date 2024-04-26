@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { RouterView, useRouter } from "vue-router";
-import { RouteConsts, type RouteConstModel } from "@/router/index";
+import { RouteConsts } from "@/router/index";
 import { useGlobalStore } from "@/stores/global";
-import { mdiMagnify, mdiLogout, mdiCheckboxBlank } from "@mdi/js";
+import { mdiLogout, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { CommonDialog } from "@/commons/commonDialog";
+import { ApiChatRoom } from "./webapi/apiChatRoom";
 const router = useRouter();
 const globalStore = useGlobalStore();
 
@@ -20,36 +21,101 @@ const logout = async (): Promise<void> => {
   router.push({ path: RouteConsts.login.path });
 };
 
-/** ナビゲーションアイテムModel */
-interface navigationItem {
-  icon: string;
-  route: RouteConstModel;
-}
-/** ナビゲーションアイテム配列 */
-const navigationItems = computed<navigationItem[]>(() => {
-  return [
-    // テスト
-    { icon: mdiMagnify, route: RouteConsts.test },
-    { icon: mdiMagnify, route: RouteConsts.login },
-  ];
-});
-
 /** ナビゲーション表示 */
 const drawer = ref(true);
 
+/** チャットルームリストの項目 */
+const chatRoomListItems = ref<
+  {
+    chatRoomId: number;
+    chatRoomName: string;
+    createDatetime: Date;
+  }[]
+>([]);
 /**
- * ナビゲーションアイテムクリック時
- * @param title 遷移先タイトル
+ * チャットルームリストの項目を再読み込み
  */
-const clickNavigationItem = (title: string): void => {
-  // 変更された場合のみ
-  if (title !== globalStore.currentPageTitle) {
+const reloadChatRoomList = async (): Promise<void> => {
+  // チャットルームリストの項目を取得
+  chatRoomListItems.value = await ApiChatRoom.getAllNotLogicalDeleted();
+  // 作成日時の降順にソート
+  chatRoomListItems.value.sort((a, b) => {
+    return a.createDatetime < b.createDatetime ? 1 : -1;
+  });
+};
+
+/**
+ * 新規チャット作成
+ */
+const createNewChatRoom = async (): Promise<void> => {
+  try {
     // ローディング開始
     globalStore.isLoading = true;
+
+    // チャットルーム作成
+    const newChatRoomId = (await ApiChatRoom.createNew()).newId;
+
+    // チャットルームリストの項目を読み込み
+    await reloadChatRoomList();
+
+    // 作成したチャットルームに遷移
+    router.push({ path: `${RouteConsts.chatRoom.path}/${newChatRoomId}` });
+    // ※遷移先でローディングを終了するのでここでは対応不要
+  } catch (e) {
+    // 遷移前の処理でエラーが発生した場合を考慮してローディング終了対応
+    // ローディング終了
+    globalStore.isLoading = false;
+
+    throw e;
   }
 };
 
-onMounted(async () => {});
+/**
+ * チャットルーム選択
+ */
+const selectChatRoom = (chatRoomId: number): void => {
+  // ローディング開始
+  globalStore.isLoading = true;
+
+  // 選択したチャットルームに遷移
+  router.push({ path: `${RouteConsts.chatRoom.path}/${chatRoomId}` });
+  // ※遷移先でローディングを終了するのでここでは対応不要
+};
+
+/**
+ * 対象のチャットルームを削除
+ */
+const deleteTargetChatRoom = async (targetChatRoomId: number): Promise<void> => {
+  try {
+    // ローディング開始
+    globalStore.isLoading = true;
+
+    // 確認
+    if (CommonDialog.confirmProcess("チャットルームを削除します") === false) return;
+
+    // チャットルーム削除
+    await ApiChatRoom.logicalDeleteTarget({ targetChatRoomId: targetChatRoomId });
+
+    // チャットルームリストの項目を読み込み
+    await reloadChatRoomList();
+  } finally {
+    // ローディング終了
+    globalStore.isLoading = false;
+  }
+};
+
+onMounted(async (): Promise<void> => {
+  try {
+    // ローディング開始
+    globalStore.isLoading = true;
+
+    // チャットルームリストの項目を読み込み
+    await reloadChatRoomList();
+  } finally {
+    // ローディング終了
+    globalStore.isLoading = false;
+  }
+});
 </script>
 
 <template>
@@ -74,23 +140,26 @@ onMounted(async () => {});
 
     <!-- ナビゲーションバー -->
     <v-navigation-drawer v-if="globalStore.isLogin" v-model="drawer" color="secondary">
-        <v-list>
-          <v-list-item v-for="(item, key) in navigationItems" :key="key" :to="{ path: item.route.path }" @click="clickNavigationItem(item.route.title)">
-            <template v-slot:prepend>
-              <v-icon :icon="mdiCheckboxBlank"></v-icon><span style="margin-left: 8px">{{ item.route.title }}</span>
-            </template>
-          </v-list-item>
-        </v-list>
-      </v-navigation-drawer>
+      <v-container>
+        <v-btn :prepend-icon="mdiPlus" color="primary" @click="createNewChatRoom()">新規チャット作成</v-btn>
+      </v-container>
+      <v-list>
+        <v-list-item v-for="(item, key) of chatRoomListItems" :key="key" :title="item.chatRoomName" :subtitle="item.createDatetime.toLocaleString()" @click="selectChatRoom(item.chatRoomId)">
+          <!-- <template v-slot:prepend>
+              <v-icon :icon=""></v-icon><span style="margin-left: 8px">{{ item.route.title }}</span>
+            </template> -->
+          <template v-slot:append>
+            <v-icon :icon="mdiTrashCanOutline" @click="deleteTargetChatRoom(item.chatRoomId)"></v-icon>
+          </template>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
     <!-- メイン -->
-      <v-main>
-        <v-container>
-          <v-label style="font-size: x-large">{{ globalStore.currentPageTitle }}</v-label>
-          <v-container>
-            <RouterView />
-          </v-container>
-        </v-container>
-      </v-main>
+    <v-main>
+      <v-container>
+        <RouterView />
+      </v-container>
+    </v-main>
   </v-app>
 </template>

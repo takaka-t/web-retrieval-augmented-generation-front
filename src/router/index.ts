@@ -13,6 +13,8 @@ export interface RouteConstModel {
 export const RouteConsts = {
   /** ログイン */
   login: <RouteConstModel>{ title: "ログイン", path: "/login" },
+  /** チャットルーム */
+  chatRoom: <RouteConstModel>{ title: "チャットルーム", path: "/chat-room" },
   /** テスト */
   test: <RouteConstModel>{ title: "テスト", path: "/test" },
 } as const;
@@ -28,6 +30,11 @@ const router = createRouter({
     {
       path: RouteConsts.login.path,
       component: () => import("@/views/Login.vue"),
+    },
+    {
+      path: `${RouteConsts.chatRoom.path}/:chatRoomId(\\d+)`,
+      component: () => import("@/views/ChatRoom.vue"),
+      props: true,
     },
     {
       path: RouteConsts.test.path,
