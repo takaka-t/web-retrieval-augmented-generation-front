@@ -73,7 +73,7 @@ onMounted(async () => {});
     </v-footer>
 
     <!-- ナビゲーションバー -->
-      <v-navigation-drawer v-model="drawer" color="secondary">
+    <v-navigation-drawer v-if="globalStore.isLogin" v-model="drawer" color="secondary">
         <v-list>
           <v-list-item v-for="(item, key) in navigationItems" :key="key" :to="{ path: item.route.path }" @click="clickNavigationItem(item.route.title)">
             <template v-slot:prepend>
