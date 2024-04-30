@@ -120,7 +120,7 @@ onMounted(async (): Promise<void> => {
 
 <template>
   <v-app>
-    <!-- ローデイング -->
+    <!-- ローディング -->
     <v-dialog v-model="globalStore.isLoading" persistent style="width: 100%; height: 100%; z-index: 10000">
       <v-progress-circular :indeterminate="globalStore.isLoading" :size="100" color="primary" class="mx-auto"></v-progress-circular>
     </v-dialog>
@@ -158,6 +158,7 @@ onMounted(async (): Promise<void> => {
       </v-container>
     </v-main>
 
+    <!-- フッター -->
     <v-footer app>
       <v-label style="margin-left: auto"><strong>Web RAG</strong></v-label>
     </v-footer>
