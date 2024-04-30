@@ -53,7 +53,7 @@ const createNewChatRoom = async (): Promise<void> => {
     globalStore.isLoading = true;
 
     // チャットルーム作成
-    const newChatRoomId = (await ApiChatRoom.createNew()).newId;
+    const newChatRoomId = (await ApiChatRoom.createNew()).newChatRoomId;
 
     // チャットルームリストの項目を読み込み
     await reloadChatRoomList();

@@ -49,9 +49,9 @@ export namespace ApiChatRoom {
   /**
    * チャットルーム作成
    */
-  export const createNew = async (): Promise<{ newId: number }> => {
+  export const createNew = async (): Promise<{ newChatRoomId: number }> => {
     const response = await http.post("/chat-room/create-new");
-    return { newId: Number(response.data.newId) };
+    return { newChatRoomId: Number(response.data.newChatRoomId) };
   };
 
   /**
