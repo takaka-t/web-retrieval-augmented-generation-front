@@ -15,3 +15,9 @@ npm i
 ## debug
 
 npm run dev
+
+## todo
+
+チャットルームメッセージ入力中に別チャットルームなどに移動しても local storage (pinia) で保持しておきたい
+
+チャットルームやチャットルームメッセージには infinite scrollers を利用したい

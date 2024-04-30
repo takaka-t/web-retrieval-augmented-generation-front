@@ -126,7 +126,7 @@ onMounted(async (): Promise<void> => {
     </v-dialog>
 
     <!-- アプリケーションバー -->
-    <v-app-bar color="primary" prominent>
+    <v-app-bar app color="primary" prominent>
       <v-app-bar-nav-icon v-if="globalStore.isLogin" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title v-if="globalStore.isLogin">
         <strong>{{ globalStore.loginUserName }}</strong>
@@ -134,20 +134,16 @@ onMounted(async (): Promise<void> => {
       <v-btn v-if="globalStore.isLogin" :icon="mdiLogout" @click="logout"></v-btn>
     </v-app-bar>
 
-    <v-footer color="secondary" style="position: fixed; left: 0; bottom: 0; width: 100%; z-index: 10000">
-      <v-label style="margin-left: auto"><strong>Web RAG</strong></v-label>
-    </v-footer>
-
     <!-- ナビゲーションバー -->
-    <v-navigation-drawer v-if="globalStore.isLogin" v-model="drawer" color="secondary">
-      <v-container>
-        <v-btn :prepend-icon="mdiPlus" color="primary" @click="createNewChatRoom()">新規チャット作成</v-btn>
-      </v-container>
+    <v-navigation-drawer app v-if="globalStore.isLogin" v-model="drawer" color="secondary">
+      <template v-slot:prepend>
+        <v-container>
+          <v-btn :prepend-icon="mdiPlus" color="primary" @click="createNewChatRoom()">新規チャット作成</v-btn>
+        </v-container>
+        <v-divider></v-divider>
+      </template>
       <v-list>
         <v-list-item v-for="(item, key) of chatRoomListItems" :key="key" :title="item.chatRoomName" :subtitle="item.createDatetime.toLocaleString()" @click="selectChatRoom(item.chatRoomId)">
-          <!-- <template v-slot:prepend>
-              <v-icon :icon=""></v-icon><span style="margin-left: 8px">{{ item.route.title }}</span>
-            </template> -->
           <template v-slot:append>
             <v-icon :icon="mdiTrashCanOutline" @click="deleteTargetChatRoom(item.chatRoomId)"></v-icon>
           </template>
@@ -161,5 +157,9 @@ onMounted(async (): Promise<void> => {
         <RouterView />
       </v-container>
     </v-main>
+
+    <v-footer app>
+      <v-label style="margin-left: auto"><strong>Web RAG</strong></v-label>
+    </v-footer>
   </v-app>
 </template>
