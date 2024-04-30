@@ -74,12 +74,8 @@ const createNewChatRoom = async (): Promise<void> => {
  * チャットルーム選択
  */
 const selectChatRoom = (chatRoomId: number): void => {
-  // ローディング開始
-  globalStore.isLoading = true;
-
   // 選択したチャットルームに遷移
   router.push({ path: `${RouteConsts.chatRoom.path}/${chatRoomId}` });
-  // ※遷移先でローディングを終了するのでここでは対応不要
 };
 
 /**
