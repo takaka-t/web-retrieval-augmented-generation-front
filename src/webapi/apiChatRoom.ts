@@ -36,7 +36,7 @@ export namespace ApiChatRoom {
     createDatetime: Date;
     isLogicalDelete: Date;
   }> => {
-    const response = await http.get("/chat-room/get-target", { params: { targetChatRoomId: argument.targetChatRoomId } });
+    const response = await http.get("/chat-room/get-target", { params: argument });
     const chatRoom = response.data.chatRoom;
     return {
       chatRoomId: Number(chatRoom.chatRoomId),
