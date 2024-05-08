@@ -2,3 +2,15 @@
 .v-radio-group {
   flex: none !important;
 }
+
+/** スクロールバーデザイン */
+::-webkit-scrollbar {
+  background: lightgray;
+  width: 10px;
+  height: 10px;
+  border-radius: 20px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 20px;
+}

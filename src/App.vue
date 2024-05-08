@@ -149,7 +149,8 @@ onMounted(async (): Promise<void> => {
 
     <!-- メイン -->
     <v-main>
-      <v-container>
+      <!-- アプリケーションバー と フッター を除いた高さ -->
+      <v-container style="height: calc(100vh - 64px - 40px)">
         <RouterView />
       </v-container>
     </v-main>

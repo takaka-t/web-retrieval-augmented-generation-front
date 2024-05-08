@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
+import { mdiSendVariantOutline } from "@mdi/js";
 import { useGlobalStore } from "@/stores/global";
 import { ApiChatRoom } from "@/webapi/apiChatRoom";
+import { ApiChatRoomMessage } from "@/webapi/apiChatRoomMessage";
 const globalStore = useGlobalStore();
 
 const props = defineProps<{
@@ -20,20 +22,75 @@ const chatRoomName = ref<string>("");
 /** チャットルーム作成日時 */
 const chatRoomCreateDateTime = ref<Date | null>(null);
 
+/** チャットルームメッセージのリスト */
+const chatRoomMessageList = ref<
+  {
+    chatRoomId: number;
+    chatRoomMessageId: number;
+    isSenderBot: boolean;
+    messageContent: string;
+    sendDatetime: Date;
+  }[]
+>([]);
+
+/** チャットルームメッセージ入力値 */
+const inputChatRoomMessage = ref<string | null>(null);
+/** チャットルームメッセージが送信可能かどうか */
+const isChatRoomMessageSendable = computed((): boolean => {
+  return inputChatRoomMessage.value !== null && inputChatRoomMessage.value !== "";
+});
+
 /**
  * チャットルーム初期化
  */
-const initializeChatRoom = async (targetChatRoomId: number): Promise<void> => {
+const initializeChatRoom = async (): Promise<void> => {
   /** 対象チャットルーム */
-  const targetChatRoom = await ApiChatRoom.getTarget({ targetChatRoomId: targetChatRoomId });
+  const targetChatRoom = await ApiChatRoom.getTarget({ targetChatRoomId: chatRoomId.value });
 
   // チャットルーム名 設定
   chatRoomName.value = targetChatRoom.chatRoomName;
   // チャットルーム作成日時 設定
   chatRoomCreateDateTime.value = targetChatRoom.createDatetime;
 
-  /** 対象チャットルームのメッセージ全件 */
-  // const targetChatRoomAllMessages = TODO
+  // チャットルームメッセージ入力値 初期化
+  // TODO:入力値保持
+  inputChatRoomMessage.value = null;
+
+  // チャットルームメッセージ 読み込み
+  chatRoomMessageList.value = await ApiChatRoomMessage.getAllNotLogicalDeleted({
+    targetChatRoomId: chatRoomId.value,
+  });
+};
+
+/**
+ * チャットルームメッセージを送信する
+ */
+const sendChatRoomMessage = async (): Promise<void> => {
+  // 送信可能でない場合は処理を抜ける
+  if (isChatRoomMessageSendable.value === false) {
+    return;
+  }
+
+  try {
+    // ローディング開始
+    globalStore.isLoading = true;
+    // チャットルームメッセージ送信
+    await ApiChatRoomMessage.sendNew({
+      targetChatRoomId: chatRoomId.value,
+      newChatRoomMessage: inputChatRoomMessage.value!,
+    });
+
+    // チャットルームメッセージ入力値 初期化
+    inputChatRoomMessage.value = null;
+
+    // チャットルームメッセージ 読み込み
+    chatRoomMessageList.value = await ApiChatRoomMessage.getAllNotLogicalDeleted({
+      targetChatRoomId: chatRoomId.value,
+    });
+  } finally {
+    // ローディング解除
+    globalStore.isLoading = false;
+  }
 };
 
 /**
@@ -49,9 +106,8 @@ watch(chatRoomId, async (): Promise<void> => {
     // ローディング開始
     globalStore.isLoading = true;
 
-    console.log("watch", "chatRoomId", chatRoomId.value);
     // チャットルーム初期化
-    await initializeChatRoom(chatRoomId.value);
+    await initializeChatRoom();
   } finally {
     // ローディング解除
     globalStore.isLoading = false;
@@ -63,9 +119,8 @@ onMounted(async (): Promise<void> => {
     // ローディング開始
     globalStore.isLoading = true;
 
-    console.log("onMounted", "chatRoomId", chatRoomId.value);
     // チャットルーム初期化
-    await initializeChatRoom(chatRoomId.value);
+    await initializeChatRoom();
   } finally {
     // ローディング解除
     globalStore.isLoading = false;
@@ -74,8 +129,40 @@ onMounted(async (): Promise<void> => {
 </script>
 
 <template>
-  <v-container>
-    <h2>{{ chatRoomName }}</h2>
-    <v-label>{{ chatRoomCreateDateTime === null ? "" : chatRoomCreateDateTime.toLocaleString() }}</v-label>
-  </v-container>
+  <div style="height: 100%; display: flex; flex-direction: column">
+    <div>
+      <h2>{{ chatRoomName }}</h2>
+      <v-label>{{ chatRoomCreateDateTime === null ? "" : chatRoomCreateDateTime.toLocaleString() }}</v-label>
+    </div>
+    <div style="width: 100%; max-width: 750px; flex-grow: 1; overflow-y: auto; margin: 0 auto">
+      <v-container v-for="(item, key) of chatRoomMessageList" :key="key">
+        <div style="display: flex; align-items: center">
+          <img :src="item.isSenderBot ? '/images/chat-bot.png' : '/images/chat-user.png'" style="width: 32px; height: 32px" />
+          <span style="padding-left: 4px; font-size: large; font-weight: bold">{{ item.isSenderBot ? "AI" : "あなた" }}</span>
+        </div>
+        <div style="padding: 4px 16px; white-space: pre-wrap">
+          {{ item.messageContent }}
+        </div>
+      </v-container>
+    </div>
+    <div style="padding-top: 6px">
+      <v-textarea
+        v-model="inputChatRoomMessage"
+        label="質問を入力してください"
+        hint="ctrl + enter で送信"
+        variant="outlined"
+        rows="1"
+        max-rows="3"
+        auto-grow
+        style="max-width: 800px; margin: 0 auto"
+        @keydown.enter.ctrl="sendChatRoomMessage()"
+      >
+        <template v-slot:append-inner>
+          <div style="height: 100%; display: flex; align-items: end">
+            <v-btn :icon="mdiSendVariantOutline" variant="text" :disabled="isChatRoomMessageSendable === false" @click="sendChatRoomMessage()"></v-btn>
+          </div>
+        </template>
+      </v-textarea>
+    </div>
+  </div>
 </template>
