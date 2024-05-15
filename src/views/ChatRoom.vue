@@ -17,6 +17,9 @@ const props = defineProps<{
 /** チャットルームID */
 const chatRoomId = computed((): number => Number(props.chatRoomId));
 
+/** チャットルームメッセージを表示するdiv */
+const chatRoomMessagesDiv = ref<HTMLDivElement | null>(null);
+
 /** チャットルーム名 */
 const chatRoomName = ref<string>("");
 /** チャットルーム作成日時 */
@@ -37,8 +40,24 @@ const chatRoomMessageList = ref<
 const inputChatRoomMessage = ref<string | null>(null);
 /** チャットルームメッセージが送信可能かどうか */
 const isChatRoomMessageSendable = computed((): boolean => {
-  return inputChatRoomMessage.value !== null && inputChatRoomMessage.value !== "";
+  return inputChatRoomMessage.value !== null && inputChatRoomMessage.value.trim() !== "";
 });
+
+/**
+ * チャットルームメッセージ 読み込み
+ */
+const fetchChatRoomMessages = async (): Promise<void> => {
+  // チャットルームメッセージを読み込む
+  chatRoomMessageList.value = await ApiChatRoomMessage.getAllNotLogicalDeleted({
+    targetChatRoomId: chatRoomId.value,
+  });
+
+  // チャットルームメッセージを表示するdivを一番下までスクロール
+  // ※描写後に動作するように処理を遅延させる
+  setTimeout(() => {
+    chatRoomMessagesDiv.value?.scrollTo({ top: chatRoomMessagesDiv.value.scrollHeight, behavior: "smooth" });
+  }, 500);
+};
 
 /**
  * チャットルーム初期化
@@ -57,9 +76,7 @@ const initializeChatRoom = async (): Promise<void> => {
   inputChatRoomMessage.value = null;
 
   // チャットルームメッセージ 読み込み
-  chatRoomMessageList.value = await ApiChatRoomMessage.getAllNotLogicalDeleted({
-    targetChatRoomId: chatRoomId.value,
-  });
+  await fetchChatRoomMessages();
 };
 
 /**
@@ -77,16 +94,14 @@ const sendChatRoomMessage = async (): Promise<void> => {
     // チャットルームメッセージ送信
     await ApiChatRoomMessage.sendNew({
       targetChatRoomId: chatRoomId.value,
-      newChatRoomMessage: inputChatRoomMessage.value!,
+      newChatRoomMessage: inputChatRoomMessage.value!.trim(),
     });
 
     // チャットルームメッセージ入力値 初期化
     inputChatRoomMessage.value = null;
 
     // チャットルームメッセージ 読み込み
-    chatRoomMessageList.value = await ApiChatRoomMessage.getAllNotLogicalDeleted({
-      targetChatRoomId: chatRoomId.value,
-    });
+    await fetchChatRoomMessages();
   } finally {
     // ローディング解除
     globalStore.isLoading = false;
@@ -134,7 +149,7 @@ onMounted(async (): Promise<void> => {
       <h2>{{ chatRoomName }}</h2>
       <v-label>{{ chatRoomCreateDateTime === null ? "" : chatRoomCreateDateTime.toLocaleString() }}</v-label>
     </div>
-    <div style="width: 100%; max-width: 750px; flex-grow: 1; overflow-y: auto; margin: 0 auto">
+    <div ref="chatRoomMessagesDiv" style="width: 100%; max-width: 750px; flex-grow: 1; overflow-y: auto; margin: 0 auto">
       <v-container v-for="(item, key) of chatRoomMessageList" :key="key">
         <div style="display: flex; align-items: center">
           <img :src="item.isSenderBot ? '/images/chat-bot.png' : '/images/chat-user.png'" style="width: 32px; height: 32px" />
