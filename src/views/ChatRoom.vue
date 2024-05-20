@@ -91,6 +91,7 @@ const sendChatRoomMessage = async (): Promise<void> => {
   try {
     // ローディング開始
     globalStore.isLoading = true;
+
     // チャットルームメッセージ送信
     await ApiChatRoomMessage.sendNew({
       targetChatRoomId: chatRoomId.value,

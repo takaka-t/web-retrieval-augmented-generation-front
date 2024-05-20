@@ -5,7 +5,7 @@ import axios from "axios";
  */
 export const http = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL_FOR_WEB_API,
-  timeout: 10000,
+  timeout: 30000,
 });
 
 // request 共通処理

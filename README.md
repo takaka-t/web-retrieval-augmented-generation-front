@@ -16,6 +16,10 @@ npm i
 
 npm run dev
 
+## deploy
+
+npm run build
+
 ## todo
 
 チャットルームメッセージ入力中に別チャットルームなどに移動しても local storage (pinia) で保持しておきたい
