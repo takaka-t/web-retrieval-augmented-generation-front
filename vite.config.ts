@@ -9,6 +9,7 @@ export default defineConfig({
   server: {
     watch: { usePolling: true },
     proxy: { "/api": "http://app:3000" },
+    host: true,
   },
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
