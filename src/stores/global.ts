@@ -1,14 +1,12 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
+import { ApiSessionUser } from "@/webapi/apiSessionUser";
 
 export const useGlobalStore = defineStore(
   "global",
   () => {
     /** ローディング表示用 */
     const isLoading = ref(false);
-
-    /** 現在ページタイトル */
-    const currentPageTitle = ref<string | null>(null);
 
     /** ログインユーザーID */
     const loginUserId = ref<string | null>(null);
@@ -42,17 +40,40 @@ export const useGlobalStore = defineStore(
       // ログアウト
       loginUserId.value = null;
       loginUserName.value = null;
-      currentPageTitle.value = null;
+    };
+
+    /**
+     * セッションユーザー情報
+     */
+    const sessionUserInfo = ref<{ sessionUserName: string } | null>(null);
+    /**
+     * セッションユーザー情報設定
+     * @param argument
+     */
+    const setSessionUserInfo = async (argument: { newSessionUserName: string }): Promise<void> => {
+      // セッションユーザー情報設定
+      await ApiSessionUser.setSessionUserInfo(argument);
+      // ストアにも設定
+      sessionUserInfo.value = { sessionUserName: argument.newSessionUserName };
+    };
+    /**
+     * セッションユーザー情報取得
+     */
+    const getSessionUserInfo = async (): Promise<void> => {
+      // セッションユーザー情報取得してストアに設定
+      sessionUserInfo.value = await ApiSessionUser.getSessionUserInfo();
     };
 
     return {
       isLoading,
-      currentPageTitle,
       loginUserId,
       loginUserName,
       isLogin,
       login,
       logout,
+      sessionUserInfo,
+      setSessionUserInfo,
+      getSessionUserInfo,
     };
   },
   { persist: true }

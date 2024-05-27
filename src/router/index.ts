@@ -11,10 +11,12 @@ export interface RouteConstModel {
 
 /** Route定数 */
 export const RouteConsts = {
-  /** ログイン */
-  login: <RouteConstModel>{ title: "ログイン", path: "/login" },
+  /** トップ */
+  top: <RouteConstModel>{ title: "トップ", path: "/" },
   /** チャットルーム */
   chatRoom: <RouteConstModel>{ title: "チャットルーム", path: "/chat-room" },
+  /** ログイン */
+  login: <RouteConstModel>{ title: "ログイン", path: "/login" },
   /** テスト */
   test: <RouteConstModel>{ title: "テスト", path: "/test" },
 } as const;
@@ -28,13 +30,17 @@ const router = createRouter({
       component: () => import("@/views/NotFound.vue"),
     },
     {
-      path: RouteConsts.login.path,
-      component: () => import("@/views/Login.vue"),
+      path: RouteConsts.top.path,
+      component: () => import("@/views/Top.vue"),
     },
     {
       path: `${RouteConsts.chatRoom.path}/:chatRoomId(\\d+)`,
       component: () => import("@/views/ChatRoom.vue"),
       props: true,
+    },
+    {
+      path: RouteConsts.login.path,
+      component: () => import("@/views/Login.vue"),
     },
     {
       path: RouteConsts.test.path,
@@ -47,23 +53,24 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const globalStore = useGlobalStore();
 
-  // 未ログインガード
-  if (to.path.includes(RouteConsts.login.path) === false && globalStore.isLogin === false) {
-    // Login画面に遷移予定でなく、未ログインの場合にLogin画面に遷移
-
-    // ログイン画面に遷移させる
-    next({ path: RouteConsts.login.path });
-  } else {
-    // 通常遷移
-
-    // 画面タイトルを設定する
-    const target = Object.values(RouteConsts).find((route) => to.path.includes(route.path));
-    if (target !== undefined) {
-      globalStore.currentPageTitle = target.title;
-    }
-
-    next();
+  // セッションユーザー情報未設定ガード
+  if (globalStore.sessionUserInfo === null && to.path !== "/") {
+    // セッションユーザー情報未設定時はトップ画面以外はトップ画面に遷移
+    next({ path: RouteConsts.top.path });
+    return;
   }
+
+  // TODO:管理機能は未実装なので未ログインガード不要
+  // // 未ログインガード
+  // if (to.path.includes(RouteConsts.login.path) === false && globalStore.isLogin === false) {
+  //   // Login画面に遷移予定でなく、未ログインの場合にLogin画面に遷移
+
+  //   // ログイン画面に遷移させる
+  //   next({ path: RouteConsts.login.path });
+  // }
+
+  // 通常遷移
+  next();
 });
 
 export default router;
