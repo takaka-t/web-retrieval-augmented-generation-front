@@ -48,7 +48,7 @@ const isChatRoomMessageSendable = computed((): boolean => {
  */
 const fetchChatRoomMessages = async (): Promise<void> => {
   // チャットルームメッセージを読み込む
-  chatRoomMessageList.value = await ApiChatRoomMessage.getAllNotLogicalDeleted({
+  chatRoomMessageList.value = await ApiChatRoomMessage.getAll({
     targetChatRoomId: chatRoomId.value,
   });
 
@@ -151,7 +151,7 @@ onMounted(async (): Promise<void> => {
       <v-label>{{ chatRoomCreateDateTime === null ? "" : chatRoomCreateDateTime.toLocaleString() }}</v-label>
     </div>
     <div ref="chatRoomMessagesDiv" style="width: 100%; max-width: 750px; flex-grow: 1; overflow-y: auto; margin: 0 auto">
-      <v-container v-for="(item, key) of chatRoomMessageList" :key="key">
+      <v-container v-for="(item, key) of chatRoomMessageList" :key="item.chatRoomMessageId">
         <div style="display: flex; align-items: center">
           <img :src="item.isSenderBot ? '/images/chat-bot.png' : '/images/chat-user.png'" style="width: 32px; height: 32px" />
           <span style="padding-left: 4px; font-size: large; font-weight: bold">{{ item.isSenderBot ? "AI" : "あなた" }}</span>

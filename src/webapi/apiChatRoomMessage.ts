@@ -6,9 +6,8 @@ import { http } from "@/commons/http";
 export namespace ApiChatRoomMessage {
   /**
    * 対象チャットルームのチャットルームメッセージ取得
-   * ※論理削除されていないもののみ取得
    */
-  export const getAllNotLogicalDeleted = async (argument: {
+  export const getAll = async (argument: {
     targetChatRoomId: number;
   }): Promise<
     {
@@ -19,7 +18,7 @@ export namespace ApiChatRoomMessage {
       sendDatetime: Date;
     }[]
   > => {
-    const response = await http.get("/chat-room-message/get-all-not-logical-deleted", { params: argument });
+    const response = await http.get("/chat-room-message/get-all", { params: argument });
     return Array.from(response.data.chatRoomMessages).map((item: any) => {
       return {
         chatRoomId: Number(item.chatRoomId),

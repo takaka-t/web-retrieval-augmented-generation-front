@@ -60,7 +60,7 @@ const chatRoomListItems = ref<
  */
 const reloadChatRoomList = async (): Promise<void> => {
   // チャットルームリストの項目を取得
-  chatRoomListItems.value = await ApiChatRoom.getAllNotLogicalDeleted();
+  chatRoomListItems.value = await ApiChatRoom.getAll();
   // 作成日時の降順にソート
   chatRoomListItems.value.sort((a, b) => {
     return a.createDatetime < b.createDatetime ? 1 : -1;
@@ -186,7 +186,13 @@ onMounted(async (): Promise<void> => {
         <v-divider></v-divider>
       </template>
       <v-list>
-        <v-list-item v-for="(item, key) of chatRoomListItems" :key="key" :title="item.chatRoomName" :subtitle="item.createDatetime.toLocaleString()" @click="selectChatRoom(item.chatRoomId)">
+        <v-list-item
+          v-for="(item, index) of chatRoomListItems"
+          :key="item.chatRoomId"
+          :title="item.chatRoomName"
+          :subtitle="item.createDatetime.toLocaleString()"
+          @click="selectChatRoom(item.chatRoomId)"
+        >
           <template v-slot:append>
             <v-icon :icon="mdiTrashCanOutline" @click="deleteTargetChatRoom(item.chatRoomId)"></v-icon>
           </template>

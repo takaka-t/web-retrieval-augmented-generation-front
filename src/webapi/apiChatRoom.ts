@@ -5,17 +5,16 @@ import { http } from "@/commons/http";
  */
 export namespace ApiChatRoom {
   /**
-   * チャットルーム取得
-   * ※論理削除されていないもののみ取得
+   * チャットルーム全取得
    */
-  export const getAllNotLogicalDeleted = async (): Promise<
+  export const getAll = async (): Promise<
     {
       chatRoomId: number;
       chatRoomName: string;
       createDatetime: Date;
     }[]
   > => {
-    const response = await http.get("/chat-room/get-all-not-logical-deleted");
+    const response = await http.get("/chat-room/get-all");
     return Array.from(response.data.chatRooms).map((item: any) => {
       return {
         chatRoomId: Number(item.chatRoomId),
@@ -34,7 +33,6 @@ export namespace ApiChatRoom {
     chatRoomId: number;
     chatRoomName: string;
     createDatetime: Date;
-    isLogicalDelete: Date;
   }> => {
     const response = await http.get("/chat-room/get-target", { params: argument });
     const chatRoom = response.data.chatRoom;
@@ -42,7 +40,6 @@ export namespace ApiChatRoom {
       chatRoomId: Number(chatRoom.chatRoomId),
       chatRoomName: String(chatRoom.chatRoomName),
       createDatetime: new Date(chatRoom.createDatetime),
-      isLogicalDelete: new Date(chatRoom.isLogicalDelete),
     };
   };
 
