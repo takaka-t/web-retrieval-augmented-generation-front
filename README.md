@@ -27,3 +27,5 @@ npm run build
 チャットルームやチャットルームメッセージには infinite scrollers を利用したい
 
 api は response body のオブジェクトと完全に一致させる
+
+更新があった際に再読み込みを促したい
