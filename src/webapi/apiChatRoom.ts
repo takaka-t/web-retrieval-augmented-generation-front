@@ -12,6 +12,7 @@ export namespace ApiChatRoom {
       chatRoomId: number;
       chatRoomName: string;
       createDatetime: Date;
+      lastChatRoomMessageDatetime: Date | null;
     }[]
   > => {
     const response = await http.get("/chat-room/get-all");
@@ -20,6 +21,7 @@ export namespace ApiChatRoom {
         chatRoomId: Number(item.chatRoomId),
         chatRoomName: String(item.chatRoomName),
         createDatetime: new Date(item.createDatetime),
+        lastChatRoomMessageDatetime: item.lastChatRoomMessageDatetime !== null ? new Date(item.lastChatRoomMessageDatetime) : null,
       };
     });
   };

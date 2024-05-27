@@ -103,6 +103,8 @@ const sendChatRoomMessage = async (): Promise<void> => {
 
     // チャットルームメッセージ 読み込み
     await fetchChatRoomMessages();
+    // チャットルームリストの項目を再読み込み ※非同期で実行
+    globalStore.reloadChatRoomList();
   } finally {
     // ローディング解除
     globalStore.isLoading = false;

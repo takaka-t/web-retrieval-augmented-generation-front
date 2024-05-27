@@ -27,5 +27,3 @@ npm run build
 チャットルームやチャットルームメッセージには infinite scrollers を利用したい
 
 api は response body のオブジェクトと完全に一致させる
-
-チャットルームの並び順は最後にメッセージを送信したものにしたい

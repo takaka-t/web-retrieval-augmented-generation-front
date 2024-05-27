@@ -53,6 +53,7 @@ const chatRoomListItems = ref<
     chatRoomId: number;
     chatRoomName: string;
     createDatetime: Date;
+    lastChatRoomMessageDatetime: Date | null;
   }[]
 >([]);
 /**
@@ -61,11 +62,22 @@ const chatRoomListItems = ref<
 const reloadChatRoomList = async (): Promise<void> => {
   // チャットルームリストの項目を取得
   chatRoomListItems.value = await ApiChatRoom.getAll();
-  // 作成日時の降順にソート
+  // 最終メッセージ日時の降順にソート
   chatRoomListItems.value.sort((a, b) => {
-    return a.createDatetime < b.createDatetime ? 1 : -1;
+    if (a.lastChatRoomMessageDatetime === null && b.lastChatRoomMessageDatetime === null) {
+      // 最終メッセージ日時が両方nullの場合は作成日時の降順
+      return a.createDatetime < b.createDatetime ? 1 : -1;
+    } else if (a.lastChatRoomMessageDatetime === null) {
+      return 1;
+    } else if (b.lastChatRoomMessageDatetime === null) {
+      return -1;
+    } else {
+      return a.lastChatRoomMessageDatetime < b.lastChatRoomMessageDatetime ? 1 : -1;
+    }
   });
 };
+// global に保持
+globalStore.reloadChatRoomList = reloadChatRoomList;
 /**
  * 新規チャット作成
  */
@@ -190,7 +202,7 @@ onMounted(async (): Promise<void> => {
           v-for="(item, index) of chatRoomListItems"
           :key="item.chatRoomId"
           :title="item.chatRoomName"
-          :subtitle="item.createDatetime.toLocaleString()"
+          :subtitle="(item.lastChatRoomMessageDatetime !== null ? item.lastChatRoomMessageDatetime!.toLocaleString() : '-')"
           @click="selectChatRoom(item.chatRoomId)"
         >
           <template v-slot:append>

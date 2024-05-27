@@ -64,6 +64,15 @@ export const useGlobalStore = defineStore(
       sessionUserInfo.value = await ApiSessionUser.getSessionUserInfo();
     };
 
+    /**
+     * チャットルームリストの項目を再読み込みする
+     * ※チャットルーム内でのチャットルームメッセージ送信後に行いたいためglobalに保持
+     * TODO:よりよい方法があれば修正
+     */
+    let reloadChatRoomList = async (): Promise<void> => {
+      throw new Error("未設定Error");
+    };
+
     return {
       isLoading,
       loginUserId,
@@ -74,6 +83,7 @@ export const useGlobalStore = defineStore(
       sessionUserInfo,
       setSessionUserInfo,
       getSessionUserInfo,
+      reloadChatRoomList,
     };
   },
   { persist: true }
