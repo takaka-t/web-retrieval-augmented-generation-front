@@ -5,6 +5,9 @@ import { ApiSessionUser } from "@/webapi/apiSessionUser";
 export const useGlobalStore = defineStore(
   "global",
   () => {
+    /** フロントアプリバージョン */
+    const frontAppVersion = ref<string | null>(null);
+
     /** ローディング表示用 */
     const isLoading = ref(false);
 
@@ -74,6 +77,7 @@ export const useGlobalStore = defineStore(
     };
 
     return {
+      frontAppVersion,
       isLoading,
       loginUserId,
       loginUserName,

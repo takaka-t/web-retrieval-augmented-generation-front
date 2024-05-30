@@ -4,15 +4,22 @@ import { RouterView, useRouter } from "vue-router";
 import { RouteConsts } from "@/router/index";
 import type { VForm } from "vuetify/components";
 import { useGlobalStore } from "@/stores/global";
-import { mdiPlus, mdiTrashCanOutline } from "@mdi/js";
+import { useTemporaryStore } from "@/stores/temporary";
+import { mdiPlus, mdiTrashCanOutline, mdiInformation, mdiReload } from "@mdi/js";
 import { TextInputRule } from "@/commons/rules/textInputRule";
 import { CommonDialog } from "@/commons/commonDialog";
 import { ApiChatRoom } from "./webapi/apiChatRoom";
 const router = useRouter();
 const globalStore = useGlobalStore();
+const temporaryStore = useTemporaryStore();
 
 /** ナビゲーション表示 */
 const drawer = ref(true);
+
+/** 画面リロード */
+const reload = (): void => {
+  window.location.reload();
+};
 
 /** セッションユーザー情報の入力フォームのダイアログを表示するか */
 const isShowInputSessionUserFormDialog = ref(false);
@@ -161,6 +168,15 @@ onMounted(async (): Promise<void> => {
     <v-dialog v-model="globalStore.isLoading" persistent style="width: 100%; height: 100%; z-index: 10000">
       <v-progress-circular :indeterminate="globalStore.isLoading" :size="100" color="primary" class="mx-auto"></v-progress-circular>
     </v-dialog>
+
+    <!-- 再読み込みを促すダイアログ -->
+    <v-card v-if="temporaryStore.isNeedReload" color="secondary" style="position: absolute; top: 5%; left: 50%; transform: translateX(-50%); z-index: 5000">
+      <v-progress-linear indeterminate height="12"></v-progress-linear>
+      <v-card-title color="primary"><v-icon :icon="mdiInformation" size="large" style="padding-bottom: 3px"></v-icon> 更新があります</v-card-title>
+      <v-card-actions>
+        <v-btn variant="outlined" block @click="reload()"><v-icon :icon="mdiReload"></v-icon> 再読み込み</v-btn>
+      </v-card-actions>
+    </v-card>
 
     <!-- セッションユーザー情報の入力フォームのダイアログ -->
     <v-dialog v-model="isShowInputSessionUserFormDialog" persistent style="width: 100%; height: 100%; z-index: 9999">
