@@ -5,7 +5,7 @@ import { defineStore } from "pinia";
  * Temporary Store
  * ※画面リロード時に値がリセットされる
  */
-export const useTemporaryStore = defineStore("global", () => {
+export const useTemporaryStore = defineStore("temporary", () => {
   /**
    * リロードが必要かどうか
    * ※アプリ更新でリロードが必要な場合に使用
